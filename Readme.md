@@ -15,6 +15,56 @@ The pipeline:
 
 ---
 
+## Outputs
+
+Running
+
+```bash
+make pipeline
+```
+
+generates the following outputs in the `outputs/` directory:
+
+### Part 2: Relative Frequency Analysis
+
+* `outputs/summary_table.csv`
+
+  * Relative frequencies of all immune cell populations for every sample.
+
+### Part 3: Statistical Analysis
+
+* `outputs/statistical_results.csv`
+
+  * Summary statistics and Mann-Whitney U test results for responder versus non-responder comparisons.
+
+* `outputs/responder_analysis_data.csv`
+
+  * Filtered dataset used for responder versus non-responder analysis.
+
+* `outputs/responder_boxplot.png`
+
+  * Boxplot visualization comparing relative frequencies of immune cell populations between responders and non-responders.
+
+### Part 4: Baseline Subset Analysis
+
+* `outputs/baseline_melanoma_pbmc_miraclib.csv`
+
+  * All baseline melanoma PBMC samples from subjects treated with miraclib.
+
+* `outputs/baseline_by_project.csv`
+
+  * Counts of baseline samples grouped by project.
+
+* `outputs/baseline_by_response.csv`
+
+  * Counts of unique responder and non-responder subjects.
+
+* `outputs/baseline_by_sex.csv`
+
+  * Counts of unique male and female subjects.
+
+---
+
 ## Repository Structure
 
 ```text
@@ -68,6 +118,20 @@ Generated outputs are written to the `outputs/` directory.
 
 ---
 
+## Reproducibility
+
+The pipeline is designed to be rerunnable and reproducible.
+
+Running
+
+```bash
+make pipeline
+```
+
+multiple times will automatically recreate the database and regenerate all output files. No manual cleanup of existing database files or output directories is required.
+
+---
+
 ## Launching the Dashboard
 
 Start the dashboard locally:
@@ -117,26 +181,11 @@ The dataset is stored in a single SQLite table named `cell_counts`.
 
 ### Design Rationale
 
-For this assessment, a single-table design provides a simple and efficient representation of the provided dataset.
+The provided dataset is naturally represented as a single table because each row corresponds to a unique sample and contains all metadata and cell count measurements required for analysis.
 
-For larger production datasets involving hundreds of projects and thousands of samples, the schema would be normalized into separate entities such as:
+For the scope of this assessment, a single-table design simplifies data ingestion, querying, and analysis while avoiding unnecessary complexity.
 
-* Projects
-* Subjects
-* Samples
-* Treatments
-* Responses
-* Cell Population Measurements
-
-This normalization would:
-
-* Reduce data redundancy
-* Improve maintainability
-* Support additional immune cell populations
-* Enable more complex analytical queries
-* Improve scalability as data volume grows
-
-Indexes would be added on frequently queried fields such as:
+To scale to hundreds of projects, thousands of samples, and more advanced analytical workflows, indexes could be added on commonly queried fields such as:
 
 * project
 * subject
@@ -144,7 +193,7 @@ Indexes would be added on frequently queried fields such as:
 * response
 * sample_type
 
-to improve query performance.
+If the number of cell populations or analytical requirements expanded substantially, the schema could be normalized into separate entities such as projects, subjects, samples, and cell population measurements. This would reduce redundancy, improve maintainability, and support more complex analytical workloads.
 
 ---
 
@@ -159,74 +208,87 @@ Percentage = (Population Count / Total Count) × 100
 
 The resulting summary table contains:
 
-- sample
-- total_count
-- population
-- count
-- percentage
+* sample
+* total_count
+* population
+* count
+* percentage
 
 ### Output Files
 
-- `outputs/summary_table.csv`
+* `outputs/summary_table.csv`
 
 This file contains one row per sample-population combination and serves as the primary output for Part 2.
+
+---
+
 ## Part 3: Statistical Analysis
 
 The analysis focuses on:
 
-- Melanoma patients
-- PBMC samples
-- Miraclib treatment
+* Melanoma patients
+* PBMC samples
+* Miraclib treatment
 
 Responder (`response = yes`) and non-responder (`response = no`) groups are compared using the Mann-Whitney U test.
 
 For each immune cell population:
 
-- Mean relative frequency is calculated
-- Statistical significance is evaluated
-- Relative frequency distributions are visualized using boxplots
+* Mean relative frequency is calculated
+* Statistical significance is evaluated
+* Relative frequency distributions are visualized using boxplots
 
 ### Output Files
 
-- `outputs/statistical_results.csv`
-  - Summary statistics and p-values for each immune cell population.
+* `outputs/statistical_results.csv`
 
-- `outputs/responder_analysis_data.csv`
-  - Filtered melanoma PBMC miraclib dataset used for responder vs. non-responder analysis.
+  * Summary statistics and p-values for each immune cell population.
 
-- `outputs/responder_boxplot.png`
-  - Boxplot visualization comparing relative frequencies of each immune cell population between responders and non-responders.
+* `outputs/responder_analysis_data.csv`
+
+  * Filtered melanoma PBMC miraclib dataset used for responder vs. non-responder analysis.
+
+* `outputs/responder_boxplot.png`
+
+  * Boxplot visualization comparing relative frequencies of each immune cell population between responders and non-responders.
+
 ---
+
 ## Part 4: Baseline Subset Analysis
 
 The database is queried to identify baseline samples meeting the following criteria:
 
-- Condition = melanoma
-- Sample type = PBMC
-- Treatment = miraclib
-- Time from treatment start = 0
+* Condition = melanoma
+* Sample type = PBMC
+* Treatment = miraclib
+* Time from treatment start = 0
 
 Among the resulting samples, the analysis reports:
 
-- Number of samples from each project
-- Number of responder and non-responder subjects
-- Number of male and female subjects
+* Number of samples from each project
+* Number of responder and non-responder subjects
+* Number of male and female subjects
 
 ### Output Files
 
-- `outputs/baseline_melanoma_pbmc_miraclib.csv`
-  - All melanoma PBMC baseline samples from subjects treated with miraclib.
+* `outputs/baseline_melanoma_pbmc_miraclib.csv`
 
-- `outputs/baseline_by_project.csv`
-  - Counts of baseline samples grouped by project.
+  * All melanoma PBMC baseline samples from subjects treated with miraclib.
 
-- `outputs/baseline_by_response.csv`
-  - Counts of unique responder and non-responder subjects.
+* `outputs/baseline_by_project.csv`
 
-- `outputs/baseline_by_sex.csv`
-  - Counts of unique male and female subjects.
+  * Counts of baseline samples grouped by project.
 
-  
+* `outputs/baseline_by_response.csv`
+
+  * Counts of unique responder and non-responder subjects.
+
+* `outputs/baseline_by_sex.csv`
+
+  * Counts of unique male and female subjects.
+
+---
+
 ## Code Structure
 
 ### load_data.py
@@ -260,7 +322,7 @@ This separation keeps ingestion, analysis, and presentation layers independent a
 
 ## Dashboard Link
 
-Local dashboard:
+Local dashboard URL:
 
 ```text
 http://127.0.0.1:8050
