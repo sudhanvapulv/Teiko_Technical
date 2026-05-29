@@ -152,6 +152,19 @@ Dashboard features include:
 * Responder vs. non-responder comparisons
 * Statistical analysis results
 * Baseline melanoma PBMC subset analysis
+### Troubleshooting
+
+If `make dashboard` fails due to a local Python environment configuration issue, create and activate a virtual environment before running the dashboard:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+
+make setup
+make dashboard
+```
+
+This was only observed in certain local Anaconda-based environments and should not be necessary in a clean environment such as GitHub Codespaces.
 
 ---
 
